@@ -3,7 +3,7 @@ function [ state ] = cor_create_state( mesh, params )
 
 cntV = length(mesh.x0);        % Number of vertices
 
-K   = zeros(cntV*3,cntV*3);    % Allocate global stiffness matrix
+K   = sparse( zeros(cntV*3,cntV*3) );    % Allocate global stiffness matrix
 fu  = zeros(cntV*3,1);         % Allocate global force offset vector ( - K p0 term)
 
 vx = zeros(size(mesh.x0));     % Velocity field
@@ -24,8 +24,8 @@ Ke    = cor_compute_stiffness_elements(mesh, params);
 %Ce    = cor_compute_rayleigh_damping_elements(mesh, params);
 Ce    = cor_compute_damping_elements(mesh, params);
 fue   = cor_compute_offset_force_elements(Ke, mesh);
-M     = cor_assemble_global_matrix( mesh, Me );
-C     = cor_assemble_global_matrix( mesh, Ce );
+M     = sparse( cor_assemble_global_matrix( mesh, Me ) );
+C     = sparse( cor_assemble_global_matrix( mesh, Ce ) );
 
 state = struct('x',  x, 'y', y, 'z', z,...
   'vx', vx, 'vy', vy, 'vz', vz,...

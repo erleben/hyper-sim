@@ -19,10 +19,10 @@ y  = mesh.y0;
 z  = mesh.z0;
 
 Me    = fem_compute_mass_elements( mesh, params );
-M     = fem_assemble_global_matrix( mesh, Me );
+M     = sparse( fem_assemble_global_matrix( mesh, Me ) );
 
 Ce    = fem_compute_damping_elements( mesh, params );
-C     = fem_assemble_global_matrix( mesh, Ce );
+C     = sparse( fem_assemble_global_matrix( mesh, Ce ) );
 
 state = struct(   'x',  x, 'y', y, 'z', z,...
   'vx', vx, 'vy', vy, 'vz', vz,...

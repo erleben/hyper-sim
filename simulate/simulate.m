@@ -92,7 +92,7 @@ while T > 0
             kk = 0;
           end
         end
-        clear s1 s2 s3 s4 ke1 ke3 p2 p4 max_diff;
+        clear s1 s2 s3 s4 p2 p4 max_diff;
         %------------------------------------------------------------------
       case 'fixed'
         
@@ -171,7 +171,8 @@ while T > 0
         frame = frame + 1;
       end
     end
-    
+    close(fh);
+        
   end
   
 end

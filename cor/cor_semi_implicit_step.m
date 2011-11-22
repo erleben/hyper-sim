@@ -7,7 +7,7 @@ f    = [ state.fx; state.fy; state.fz]; % External forces
 p    = [ state.x;  state.y;  state.z];  % Current spatial position
 v    = [ state.vx; state.vy; state.vz]; % Current spatial velocity
 
-Atmp = state.M + (dt*state.C) + (dt*dt)*state.K;
+Atmp = sparse( state.M + (dt*state.C) + (dt*dt)*state.K );
 btmp = state.M*v + dt*(f + fu - state.K*p);
 
 %--- Get information about boundary conditions ----------------------------
