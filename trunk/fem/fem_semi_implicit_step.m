@@ -21,7 +21,7 @@ v(idx) = 0;
 p(idx) = values;
 
 b      =  btmp(free)  - Atmp(free,idx)*v(idx);
-A      =  Atmp(free,free);
+A      =  sparse( Atmp(free,free) );
 
 %--- Do velocity update ---------------------------------------------------
 % v(free)    = A \ b;       % Direct method

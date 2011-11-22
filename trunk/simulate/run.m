@@ -16,8 +16,8 @@ addpath('./squeeze');
 addpath('./stretch');
 
 % method = fem_method();
-% method = cor_method();
-method = fvm_method();
+ method = cor_method();
+% method = fvm_method();
 
 % scene  = twist_create_scene();   % Constant traction
 % scene  = twist2_create_scene();  % Increasing traction
@@ -28,8 +28,8 @@ method = fvm_method();
 % scene  = squeeze_create_scene();
 % scene  = stretch_create_scene();
 
-params = create_params();
-%params = create_params([],'adaptive');
+%params = create_params();
+params = create_params([],'adaptive');
 %--- COR method is based on Hookean material but FVM and FEM uses 
 %--- a St. Venant-Kirchoff material. This gives COR a more stiff behavior/
 %--- appearance. Thus, for animation one would most like use unrealistic
@@ -37,11 +37,10 @@ params = create_params();
 %
 % params.E = 5000;
 %
-params.T  = 2.0;
+params.T  = 0.1;
 
 pinfo  = create_profile_info();
 % pinfo.debug_level = 1;
-
 
 pdata = simulate( params, method, scene, pinfo ); 
 

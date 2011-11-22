@@ -33,6 +33,7 @@ hold off;
 axis tight;
 filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'ratio'  );
 print(fh, '-depsc2', filename);
+close(fh);
 
 fh = figure('Visible','off');
 clf;
@@ -49,6 +50,7 @@ hold off;
 axis tight;
 filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'wall_clock'  );
 print(fh, '-depsc2', filename);
+close(fh);
 
 Gmin = V(:,1);
 Gmax = V(:,2);
@@ -70,6 +72,7 @@ hold off;
 axis tight;
 filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'volume'  );
 print(fh, '-depsc2', filename);
+close(fh);
 
 fh = figure('Visible','off');
 clf;
@@ -84,6 +87,7 @@ hold off;
 axis tight;
 filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'energy'  );
 print(fh, '-depsc2', filename);
+close(fh);
 
 fh = figure('Visible','off');
 clf;
@@ -101,7 +105,7 @@ hold off;
 axis tight;
 filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'coord'  );
 print(fh, '-depsc2', filename);
-
+close(fh);
 
 stats = zeros(3,4);
 
@@ -120,7 +124,6 @@ stats(3,2) = min(V(:,3));
 stats(3,3) = max(V(:,3));
 stats(3,4) = std(V(:,3));
 
-
 filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'stats.tex'  );
 fid = fopen( filename, 'w');
 
@@ -132,7 +135,6 @@ fprintf(fid, 'Wall clock     & %6.4f & %6.4f & %6.4f & %6.4f \\\\ \n', stats(2,1
 fprintf(fid, 'Volume         & %6.4f & %6.4f & %6.4f & %6.4f \\\\ \n', stats(3,1), stats(3,2), stats(3,3), stats(3,4) );
 fprintf(fid, '\\hline \n');
 fclose(fid);
-
 
 if ~isempty(C)
   fh = figure('Visible','off');
@@ -155,6 +157,7 @@ if ~isempty(C)
   axis tight;
   filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'convergence'  );
   print(fh, '-depsc2', filename);
+  close(fh);
 end
 
 end
