@@ -28,10 +28,10 @@ tx = zeros(  size(mesh.x0) );
 ty = zeros(  size(mesh.y0) );
 tz = zeros(  size(mesh.z0) );
 
-traction = -5000;
-ty( F(:,1) ) = traction;
-ty( F(:,2) ) = traction;
-ty( F(:,3) ) = traction;
+traction = -50000;
+tx( F(:,1) ) = traction;
+tx( F(:,2) ) = traction;
+tx( F(:,3) ) = traction;
 
 %--- Bundle all info into one structure ----------------------------------
 traction_info = struct(...

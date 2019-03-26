@@ -13,10 +13,16 @@ conv    = [];                                   % Convergence rate array returne
 
 %--- Load mesh data -------------------------------------------------------
 load(scene.meshfile);
-
+T = double(T);
 %--- Setup computational mesh and scene -----------------------------------
 mesh   = method.create_mesh(T,X,Y,Z);
 state  = method.create_state(mesh,params);
+%--- Embed cables into the mesh, if this is a 'pull' simulation -----------
+if isfield(scene, 'cable')
+   cable_info = cable_embedding(T, X, Y, Z, scene.cable);
+   state.cable = cable_info;
+end
+
 
 if profile_info.record_test_point
   Q = profile_info.test_point;
@@ -47,10 +53,12 @@ while T > 0
     dh       = params.h_max;
     cur_time = params.T - T + (dt - t);
     
-    state          = method.clear_forces( state );
-    traction_info  = scene.create_surface_traction_info( cur_time, state, mesh );
-    state          = method.add_surface_traction( state, traction_info );
-    BC             = scene.create_boundary_conditions( cur_time, state, mesh );
+    state             = method.clear_forces( state );
+    if isfield(scene, 'cable')
+        cable_force_info  = scene.create_cable_forces( cur_time, state, mesh );
+        state             = method.add_cable_forces( state, cable_force_info );
+    end
+    BC                = scene.create_boundary_conditions( cur_time, state, mesh );
     
     if profile_info.record_wall_clock
       t_start = tic;
@@ -152,9 +160,9 @@ while T > 0
     clf;
     hold on
     meshplot(mesh, state, BC, profile_info.debug_level);
-    axis([-10 10 -10 10 -10 10])
+    axis([-100 100 -100 100 -100 100])
     grid on
-    view(3)
+    view(0, 0)
     title( ['T = '  num2str( params.T - T ) ' [s]'] );
     xlabel('x [m]');
     ylabel('y [m]');

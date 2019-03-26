@@ -42,13 +42,18 @@ switch lower(material)
     E   = 50e9;
     nu  = 0.18;
     rho = 2190;
+  case 'ecoflex-00-50'
+    %E = 0.082737e6; % From EcoFlex 00-50 product info (12 PSI)
+    E = 1e4;
+    nu = 0.48;      % From https://www.azom.com/properties.aspx?ArticleID=920 (Silicone Polystomer)
+    rho = 1070;     % From EcoFlex 00-50 product info (1.07 g / cc)
   otherwise
     E   = 10e5;    % Young modulus
     nu  = 0.3;     % Poisson ratio
-    rho = 1000;
+    rho = 1000;    % Density (mg/cc (cubic centimetre))
 end
 
-c              = 0.0004;  % Steel like viscous damping coefficient (?)
+c              = 0.0004;  % Steel like viscous damping coefficient (Should we have this??)
 alpha          = 0.2;     % mass damping coefficient, used for Rayleigh type damping
 beta           = 0.0;     % stiffness damping coefficient, used for Rayleigh type damping
 

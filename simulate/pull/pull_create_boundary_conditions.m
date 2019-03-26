@@ -1,4 +1,4 @@
-function [ BC ] = twist_create_boundary_conditions( time, state, mesh )
+function [ BC ] = pull_create_boundary_conditions( time, state, mesh )
 %TWIST_CREATE_BOUNDARY_CONDITIONS -- Creates a fixed position boundary condition.
 %
 % INPUT:
@@ -13,7 +13,9 @@ function [ BC ] = twist_create_boundary_conditions( time, state, mesh )
 %         wanted boundary conditions.
 %
 % Copyright 2011, Kenny Erleben
-disp(size(mesh.x0))
+%
+% Modified by Max Kragballe, 2019
+
 x = mesh.x0;
 y = mesh.y0;
 z = mesh.z0;
@@ -27,6 +29,8 @@ max_z            = max( z );
 min_z            = min( z );
 delta            = 0.01;
 
+
+% Creates boundary conditions at one end of the finger-like robot
 box = [...
   min_x-delta, min_y-delta,...
   min_z-delta, min_x+delta,...

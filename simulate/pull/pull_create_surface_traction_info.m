@@ -1,5 +1,4 @@
-function [ traction_info ] = bend2_create_surface_traction_info( time, state, mesh )
-% Copyright 2011, Kenny Erleben
+function [ traction_info ] = pull_create_surface_traction_info( time, state, mesh )
 
 %--- Find the triangle surfaces where we want to apply the surface --------
 %--- traction   -----------------------------------------------------------
@@ -23,16 +22,10 @@ for f=1:length(ff(:,1))
   end  
 end
 
-%--- We apply a constant traction onto all nodes on the surface -----------
-traction =  -4*min(time,1)*50000;
-
+%--- We apply 0 traction -------------------------------------------------
 tx = zeros(  size(mesh.x0) );
 ty = zeros(  size(mesh.y0) );
 tz = zeros(  size(mesh.z0) );
-
-ty( F(:,1) ) = traction;
-ty( F(:,2) ) = traction;
-ty( F(:,3) ) = traction;
 
 %--- Bundle all info into one structure ----------------------------------
 traction_info = struct(...

@@ -7,12 +7,12 @@ end
 mesh_no = min( max( 1, mesh_no ), 8);
 
 if nargin<2 || isempty(absolute_path)
-  absolute_path = '../';
+  absolute_path = './';
 end
 
 switch(mesh_no)
  case 1
-  meshfile = '/meshing/bar_T1098_V300.mat';
+  meshfile = '/ḿodel1.10.mat';
  case 2
   meshfile = '/meshing/bar_T1197_V325';
  case 3

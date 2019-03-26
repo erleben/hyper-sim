@@ -12,7 +12,7 @@ end
 
 switch(mesh_no)
  case 1
-  meshfile = '/meshing/bar_T1098_V300.mat';
+  meshfile = '/meshing/model1.10.mat';
  case 2
   meshfile = '/meshing/bar_T1197_V325';
  case 3

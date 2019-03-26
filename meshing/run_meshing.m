@@ -21,8 +21,9 @@ for i=1:length(L);
   display(strcat( 'Generating mesh with min edge length =', num2str(min_edge_length) ) );
 
   fd = inline('dbox(p,10.0,4.0,4.0)','p');
+  
   [p, T] = distmeshnd(fd,@huniform,min_edge_length,[-6,-3,-3;6,3,3],[]);
-
+  p(:,:)
   X = p ( : , 1 ) ;
   Y = p ( : , 2 ) ;
   Z = p ( : , 3 ) ;
