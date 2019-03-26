@@ -45,6 +45,7 @@ end
 %--- Barycentric weights, where
 %       Wij := The weight of node j in terms of the position of via point i
 W = zeros(length(C(:, 1)), length(X(:, 1)));
+indices = [];
 for c=1:length(C(:,1))
     Pp = C(c, :)';
     for t=1:length(T(:,1))
@@ -64,19 +65,34 @@ for c=1:length(C(:,1))
             W(c, j) = Wct(2);
             W(c, k) = Wct(3);
             W(c, m) = Wct(4);
+            
+            indices = [indices; i; j; k; m];
+            break; %-- A point can only lie within one tetrahedron
         end
     end
 end
-
+%-- The nodes of the mesh to apply forces to
+indices = unique(indices);
+%-- The weights in terms of only
+W_p = zeros(length(C(:, 1)), length(indices(:, 1)));
+for c=1:length(C(:,1))
+    idx = find(W(c, :));    %-- Non-zero elements of the weight matrix
+    i = idx(1); j = idx(2);  k = idx(3);  m = idx(4); % The four corner nodes
+    W_p(c, find(indices==i)) = W(c, i); %-- Set the corresponding weight corresponding to W(c, i) in W_p 
+    W_p(c, find(indices==j)) = W(c, j); %-- Set the corresponding weight corresponding to W(c, j) in W_p 
+    W_p(c, find(indices==k)) = W(c, k); %-- Set the corresponding weight corresponding to W(c, k) in W_p 
+    W_p(c, find(indices==m)) = W(c, m); %-- Set the corresponding weight corresponding to W(c, m) in W_p 
+end
 %-- Computing the initial lengths of the cables
 L0s = flip(vecnorm(C(2:end, :) - C(1:end-1, :), 2, 2));
 %-- The stifness of the cable
 k = 1e4;
 
 cable = struct(...
-    'W', W, ...
+    'W', W_p, ...
     'L0s', L0s, ...
-    'k', k...
+    'k', k,...
+    'indices', indices ...
 );
 
 end

@@ -9,7 +9,7 @@ if nargin<2 || isempty(absolute_path)
   absolute_path = '../';
 end
 
-meshfile = '/meshing/model1.10.mat';
+meshfile = '/meshing/robot.mat';
 meshfile = strcat(absolute_path, meshfile);
 
 cls = @pull_create_surface_traction_info;

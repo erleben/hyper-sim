@@ -20,22 +20,19 @@ val = [0.25, 0.25, 0.25, 0.25; ...
 
 %-- Compute barycentric coordinates and indices into T
 cable = cable_embedding( T, X, Y, Z, C);
-cable.W
+W =  cable.W;
+indices = cable.indices;
 
 %-- Print test result
 LogicalStr = {'Failed', 'Success'};
-sprintf('Mesh Coupling (Small Test) Result: %s', LogicalStr{isequal(cable.W * Ps, C)+1})
-sprintf('Mesh Coupling (Small Test) Result: %s', LogicalStr{isequal((Ps' * cable.W')', C)+1})
+sprintf('Mesh Coupling (Small Test) Result: %s', LogicalStr{isequal(cable.W * Ps(cable.indices, :), C)+1})
+sprintf('Mesh Coupling (Small Test) Result: %s', LogicalStr{isequal((Ps(cable.indices, :)' * cable.W')', C)+1})
 
 %-- Testing a larger example (Embedding a cable in a robot finger
 %-- Embed cable C inside
 C = [...
-     -40.1, 0.1, -5;...
-     -29.9, 0.1, -5;...
-     -5.1, 0.1, -5; ...
-     5.1, 0.1, -5; ...
-     29.9, 0.1, -5;...
-     40.1, 0.1, -5];
+     59, 0.0, 0.0;...
+     -59, 0.0, 0.0];
 scene = pull_create_scene(1, '../', C);
 load(scene.meshfile);
 T = double(T); %-- This is needed due to T being exported from python
@@ -51,17 +48,14 @@ end
 plot3(C(:, 1), C(:,2), C(:, 3), 'LineWidth', 4, 'Color', 'Red')
 
 xlabel('x'); ylabel('y'); zlabel('z');
- 
+
 cable = cable_embedding( T, X, Y, Z, C);
 % Test that positions C can be recomputed:
 P = zeros(length(X(:, 1)), 3);
 for c = 1:length(X(:,1))
     P(c, :) = [X(c), Y(c), Z(c)];
 end
-C_reinterpolated = cable.W * P;
+C_reinterpolated = cable.W * P(cable.indices, :);
 error = norm(C_reinterpolated - C);
-C
-C_reinterpolated
+W = cable.W;
 sprintf('Total error between true positions and re-interpolated positions: %d', error)
-
-lengths = cable.W;
