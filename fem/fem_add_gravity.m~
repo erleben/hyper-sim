@@ -1,6 +1,0 @@
-function [state] = fem_add_gravity(forces, state)
-
-state.fz(:) = state.fz(:) + forces(:);
-
-end
-
