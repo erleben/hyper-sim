@@ -42,16 +42,16 @@ Fc = -cable.k * max(sum(l) - alpha * l0, 0);           %-- The cable force magni
 %--- Add forces based on directions to Fp
 for p = 1:length(Fp(:, 1))
     if p == 1
-        Fp(p, :) = Fc .* lhat(p, :);                  %-- Start attachment point
+        Fp(p, :) = -Fc .* lhat(p, :);                  %-- Start attachment point
     else
     if p == length(Fp(:, 1))
-        Fp(p, :) = -Fc .* lhat(p-1, :);               %-- End attachment point
+        Fp(p, :) = Fc .* lhat(p-1, :);                %-- End attachment point
     else
-        Fp(p, :) = Fc .* (lhat(p, :) - lhat(p-1, :)); %-- Regular via point
+        Fp(p, :) = Fc .* (lhat(p-1, :) - lhat(p, :)); %-- Regular via point
     end
     end
 end
-Fp
+
 %--- Bundle all info into one structure ----------------------------------
 cable_info = struct(...
   'Fp', Fp, ...

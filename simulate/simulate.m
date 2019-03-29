@@ -59,7 +59,7 @@ while T > 0
     
     state             = method.clear_forces( state );
     % Adding gravitational forces
-    state             = method.add_gravity(f_gravity, state);
+    %state             = method.add_gravity(f_gravity, state);
     if isfield(scene, 'cable')
         cable_force_info  = scene.create_cable_forces( cur_time, state, mesh );
         state             = method.add_cable_forces( state, cable_force_info );

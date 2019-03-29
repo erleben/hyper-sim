@@ -84,7 +84,7 @@ for c=1:length(C(:,1))
     W_p(c, find(indices==m)) = W(c, m); %-- Set the corresponding weight corresponding to W(c, m) in W_p 
 end
 %-- Computing the initial lengths of the cables
-L0s = flip(vecnorm(C(2:end, :) - C(1:end-1, :), 2, 2));
+L0s = vecnorm(C(2:end, :) - C(1:end-1, :), 2, 2);
 %-- The stifness of the cable
 k = 1e4;
 
