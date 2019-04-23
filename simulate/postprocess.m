@@ -7,6 +7,8 @@ V  = profile_data.V;   % Volume monitoring
 KE = profile_data.KE;  % Kinetic energy monitoring
 P  = profile_data.P;   % Test point monitoring
 C  = profile_data.C;   % Convergence rate monitoring
+MAX_X = profile_data.MAX_X;
+MEDIAN_XYZ = profile_data.MEDIAN_XYZ;
 
 cumH = zeros(size(H));
 cumH(1) = H(1);
@@ -107,6 +109,70 @@ filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'co
 print(fh, '-depsc2', filename);
 close(fh);
 
+fh = figure('Visible','off');
+clf;
+set(gca,'FontSize',18);
+h = plot(MAX_X(:,1), '-','LineWidth',2,'Color',[0.7 0.1, 0.1]);
+grid on
+hold on
+title('Max x position','FontSize',18);
+ylabel('Position [x]','FontSize',18);
+xlabel('Iteration','FontSize',18);
+legend([h],'position of max x');
+hold off;
+axis tight;
+filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'max_x'  );
+print(fh, '-depsc2', filename);
+close(fh);
+
+fh = figure('Visible','off');
+clf;
+set(gca,'FontSize',18);
+h = plot(MEDIAN_XYZ(:,1), '-','LineWidth',2,'Color',[0.7 0.1, 0.1]);
+grid on
+hold on
+title('Median X-coordinate','FontSize',18);
+ylabel('Position [x]','FontSize',18);
+xlabel('Iteration','FontSize',18);
+legend([h],'position of median x');
+hold off;
+axis tight;
+filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'median_x'  );
+print(fh, '-depsc2', filename);
+close(fh);
+
+fh = figure('Visible','off');
+clf;
+set(gca,'FontSize',18);
+h = plot(MEDIAN_XYZ(:,2), '-','LineWidth',2,'Color',[0.7 0.1, 0.1]);
+grid on
+hold on
+title('Median Y-coordinate','FontSize',18);
+ylabel('Position [y]','FontSize',18);
+xlabel('Iteration','FontSize',18);
+legend([h],'position of median y');
+hold off;
+axis tight;
+filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'median_y'  );
+print(fh, '-depsc2', filename);
+close(fh);
+
+fh = figure('Visible','off');
+clf;
+set(gca,'FontSize',18);
+h = plot(MEDIAN_XYZ(:,3), '-','LineWidth',2,'Color',[0.7 0.1, 0.1]);
+grid on
+hold on
+title('Median Z-coordinate','FontSize',18);
+ylabel('Position [z]','FontSize',18);
+xlabel('Iteration','FontSize',18);
+legend([h],'position of median z');
+hold off;
+axis tight;
+filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, 'median_z'  );
+print(fh, '-depsc2', filename);
+close(fh);
+
 stats = zeros(3,4);
 
 stats(1,1) = mean(H);
@@ -159,5 +225,7 @@ if ~isempty(C)
   print(fh, '-depsc2', filename);
   close(fh);
 end
+
+
 
 end

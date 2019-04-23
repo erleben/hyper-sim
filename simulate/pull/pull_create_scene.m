@@ -1,4 +1,4 @@
-function [ scene ] = pull_create_scene(mesh_no, absolute_path, cable)
+function [ scene ] = pull_create_scene(mesh_no, absolute_path, cable, boundary_condition, robot_name)
 
 if nargin<1 || isempty(mesh_no)
   mesh_no = 1;
@@ -9,11 +9,21 @@ if nargin<2 || isempty(absolute_path)
   absolute_path = '../';
 end
 
-meshfile = '/meshing/robot.mat';
+
+if nargin<5
+    meshfile = '/meshing/robot.mat';
+else
+    meshfile = strcat('/meshing/', robot_name);
+end
 meshfile = strcat(absolute_path, meshfile);
 
+
+if boundary_condition
+    cbc = @pull_create_two_boundary_conditions;
+else
+    cbc = @pull_create_boundary_conditions;
+end
 cls = @pull_create_surface_traction_info;
-cbc = @pull_create_boundary_conditions;
 cbf = @pull_create_cable_forces;
 
 scene = struct(...

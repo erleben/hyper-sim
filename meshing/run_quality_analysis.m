@@ -14,6 +14,8 @@ meshes = {
   'bar_T27977_V5577.mat'...
   };
 
+meshes = {'model1.12.mat'};
+
 for m=1:length(meshes)
   
   load( meshes{m} );

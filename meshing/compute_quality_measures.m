@@ -7,7 +7,7 @@ Qrl     = zeros(K,1);
 Qtheta  = zeros(K,1);
 Qvl     = zeros(K,1);
 
-TR = TriRep(T, X, Y, Z);
+TR = TriRep(double(T), X, Y, Z);
 [~, Rout] = circumcenters(TR);
 [~, Rin] = incenters(TR);
 

@@ -7,6 +7,9 @@ V  = [];   % Volume monitoring
 KE = [];   % Kinetic energy monitoring
 P  = [];   % Test point monitoring
 C  = {};   % Convergence rate monitoring
+MAX_X = [];
+MEDIAN_XYZ = [];
+CABLE_POINTS = [];
 
 profile = profile_info.record_convergence_rate; % Flag passed to time steppers 
 conv    = [];                                   % Convergence rate array returned by time steppers (if used by them)
@@ -19,10 +22,14 @@ mesh   = method.create_mesh(T,X,Y,Z);
 state  = method.create_state(mesh,params);
 %--- Embed cables into the mesh, if this is a 'pull' simulation -----------
 if isfield(scene, 'cable')
-   cable_info = cable_embedding(T, X, Y, Z, scene.cable);
+   cable_info = cable_embedding(T, X, Y, Z, scene.cable, params.alpha);
+   cable_info.k = params.k;
    state.cable = cable_info;
 end
 
+delta = 1.5;
+median_index  = find(X>-delta & X<delta & Y < delta & Y > -delta);
+median_index = median_index(1);
 
 if profile_info.record_test_point
   Q = profile_info.test_point;
@@ -58,10 +65,13 @@ while T > 0
     cur_time = params.T - T + (dt - t);
     
     state             = method.clear_forces( state );
-    % Adding gravitational forces
-    %state             = method.add_gravity(f_gravity, state);
+    % Adding gravitational forces if part of simulation
+    if params.gravity
+       state              = method.add_gravity(f_gravity, state); 
+    end
     if isfield(scene, 'cable')
         cable_force_info  = scene.create_cable_forces( cur_time, state, mesh );
+        CABLE_POINTS = [CABLE_POINTS; cable_force_info.cable_positions];
         state             = method.add_cable_forces( state, cable_force_info );
     end
     
@@ -159,9 +169,15 @@ while T > 0
   
   T = T - dt;
   
+  % Save maximum X point
+  MAX_X = [MAX_X; max(state.x(:))];
+  % Save median coordinates
+  MEDIAN_XYZ = [ MEDIAN_XYZ; state.x(median_index), state.y(median_index), state.z(median_index)];
   if profile_info.draw_images
     
     %--- Visualize the computed frame ---------------------------------------
+    
+    %%%% View 1 %%%%
     fh = figure('Visible','off');  % Should be used if run in commandline mode
     %fh = figure(100);
     clf;
@@ -176,10 +192,47 @@ while T > 0
     ylabel('y [m]');
     zlabel('z [m]');
     hold off;
-    
     if profile_info.save_images
       if(frame<=max_frames)
-        filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, num2str( frame, '%.5u')  );
+        filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, num2str( frame, '%.5u'), 'view1');
+        for f=1:length(profile_info.image_formats)
+          format = profile_info.image_formats{f};
+          print(fh, format, filename);
+        end        
+        %frame = frame + 1;
+      end
+    end
+    %%%% View 2 %%%%
+    fh = figure('Visible','off');  % Should be used if run in commandline mode
+    %fh = figure(100);
+    clf;
+    hold on
+    meshplot(mesh, state, BC, profile_info.debug_level);
+    axis([-100 100 -100 100 -100 100])
+    max_y = max(state.y);
+    barycentricCoordinates = state.cable.W;
+    indices = state.cable.indices;
+    vertexPositions = [state.x(indices, :), state.y(indices, :), state.z(indices, :)];     %-- Positions of all vertices
+    cablePositions = barycentricCoordinates * vertexPositions;                             %-- Re-interpolated points of the cable
+    [xs,ys,zs] = sphere;
+    % Place spheres representing cable nodes
+    for c = 1:length(cablePositions(:, 1))
+       %surf(xs+cablePositions(c, 1), ys+cablePositions(c,2), zs+cablePositions(c,3));
+       surf(xs+cablePositions(c, 1), ys-max_y, zs+cablePositions(c,3));
+    end
+    % Plot lines between cable points
+    plot3(cablePositions(:, 1), -ones(length(cablePositions(:, 1)), 1)*max_y, cablePositions(:, 3), 'LineWidth', 3, 'Color', 'Yellow')
+    grid on
+    view(0, 0)
+    %view(3)
+    title( ['T = '  num2str( params.T - T ) ' [s]'] );
+    xlabel('x [m]');
+    ylabel('y [m]');
+    zlabel('z [m]');
+    hold off;
+    if profile_info.save_images
+      if(frame<=max_frames)
+        filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, num2str( frame, '%.5u'), 'view2'  );
         for f=1:length(profile_info.image_formats)
           format = profile_info.image_formats{f};
           print(fh, format, filename);
@@ -199,7 +252,10 @@ profile_data = struct(...
   'V',V,...
   'KE',KE,...
   'P',P,...
-  'C',{C}...
+  'C',{C},...
+  'MAX_X', MAX_X,...
+  'MEDIAN_XYZ', MEDIAN_XYZ, ...
+  'CABLE_POINTS', CABLE_POINTS ...
   );
 
 end

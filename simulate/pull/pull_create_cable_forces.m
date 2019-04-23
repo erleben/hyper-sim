@@ -17,10 +17,10 @@ function [ cable_info ] = pull_create_cable_forces( time, state, mesh )
 
 %-- Get the current cable at time (t)
 cable = state.cable;
-T = mesh.T;  %-- Mesh tetrahedralization
-X = mesh.x0; %-- Mesh x coordinates
-Y = mesh.y0; %-- Mesh y coordinates
-Z = mesh.z0; %-- Mesh z coordinates
+%T = mesh.T;  %-- Mesh tetrahedralization
+X = state.x; %-- Mesh x coordinates
+Y = state.y; %-- Mesh y coordinates
+Z = state.z; %-- Mesh z coordinates
 
 %--- Barycentric weights where
 %       Wij := The weight of node j in terms of the position of via point i
@@ -32,11 +32,13 @@ Fp = zeros(length(cable.W(:, 1)), 3);
 %       -k max(l - a*l0, 0)
 V = [X(indices, :), Y(indices, :), Z(indices, :)];     %-- Positions of all vertices
 P = W * V;                                             %-- Re-interpolated points of the cable
+P
 lbar = P(2:end, :) - P(1:end-1, :);                    %-- Cable vectors
 l = vecnorm(lbar, 2, 2);                               %-- Length of the individual cables
 lhat  = lbar ./ l;                                     %-- Directions of the cable vectors
 l0 = sum(cable.L0s);                                   %-- Length of cable at time t=0
-alpha = 0.5;                                           %-- Control parameter
+alpha = max(cable.alpha, 1 - time*0.1)
+%alpha = max(cable.alpha, 1 - min(1, time) * cable.alpha)           %-- Control parameter (depends on the assumption that all controls takes 1 second)
 Fc = -cable.k * max(sum(l) - alpha * l0, 0);           %-- The cable force magnitude (identical across the cable)
 
 %--- Add forces based on directions to Fp
@@ -51,12 +53,13 @@ for p = 1:length(Fp(:, 1))
     end
     end
 end
-
+sprintf("l : %f, l0 : %f", sum(l), l0)
 %--- Bundle all info into one structure ----------------------------------
 cable_info = struct(...
   'Fp', Fp, ...
   'W', W, ...
-  'indices', indices ...
+  'indices', indices, ...
+  'cable_positions', P ...
   );
 
 end

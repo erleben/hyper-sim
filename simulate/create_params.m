@@ -1,4 +1,4 @@
-function [ params ] = create_params( material, integration, h_max, use_lumped, warp, T )
+function [ params ] = create_params( material, integration, alpha, h_max, use_lumped, warp, T, stiffness, gravity)
 % Copyright 2011, Kenny Erleben
 
 if (nargin < 1 || isempty(material) )
@@ -44,7 +44,8 @@ switch lower(material)
     rho = 2190;
   case 'ecoflex-00-50'
     %E = 0.082737e6; % From EcoFlex 00-50 product info (12 PSI)
-    E = 1e4;
+    E = 0.008e9;
+    %E = 1e4;
     nu = 0.48;      % From https://www.azom.com/properties.aspx?ArticleID=920 (Silicone Polystomer)
     rho = 1070;     % From EcoFlex 00-50 product info (1.07 g / cc)
   otherwise
@@ -54,7 +55,7 @@ switch lower(material)
 end
 
 c              = 0.0004;  % Steel like viscous damping coefficient (Should we have this??)
-alpha          = 0.2;     % mass damping coefficient, used for Rayleigh type damping
+%alpha          = 0.2;     % mass damping coefficient, used for Rayleigh type damping
 beta           = 0.0;     % stiffness damping coefficient, used for Rayleigh type damping
 
 
@@ -64,7 +65,7 @@ if (nargin < 2 || isempty(integration) )
   %integration    = 'implicit';
 end
 
-if (nargin < 3 || isempty(h_max) )
+if (nargin < 4 || isempty(h_max) )
   %--- Determine  the largest integration step that is allowed --------------
   switch lower(integration)
     case 'fixed'
@@ -109,7 +110,9 @@ params = struct( 'c', c,...
   'k_max', k_max,...
   'use_lumped', use_lumped,...
   'warp', warp,...
-  'integration', integration...
+  'integration', integration,...
+  'k', stiffness, ...
+  'gravity', gravity ...
   );
 
 end
