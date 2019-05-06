@@ -11,8 +11,6 @@ indices = cable_info.indices;
 %       W' Fp = W'W Fv =>
 %       Fv = (W'W)^-1 W' Fp
 Fv = pinv(W' * W) * W' * Fp;
-fprintf("Cable forces")
-max(Fv)
 % Add the forces to the correct nodes
 state.fx(indices,:) = state.fx(indices,:) + Fv(:, 1);
 state.fy(indices,:) = state.fy(indices,:) + Fv(:, 2);

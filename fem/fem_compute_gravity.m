@@ -24,5 +24,6 @@ for t=1:length(T(:, 1))
    f_gravity(k) = f_gravity(k) - mass * g;
    f_gravity(m) = f_gravity(m) - mass * g;
 end
+max(f_gravity)
 end
 
