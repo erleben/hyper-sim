@@ -7,6 +7,12 @@ Fp = pressure_info.Fp;     %-- Pressure forces at each triangle of the surface
 F = pressure_info.F;
 %--- Compute the nodal forces by distributing them uniformly across
 %--- vertices
+if isempty(F)
+    state.fx(:) = state.fx(:) + 0;
+    state.fy(:) = state.fy(:) + 0;
+    state.fz(:) = state.fz(:) + 0;
+    return
+end
 for f = 1:length(F(:, 1))
   force = Fp(f, :) ./ length(F(f, :));
   for v = 1:length(F(f, :))

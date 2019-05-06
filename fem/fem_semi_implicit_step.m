@@ -20,7 +20,11 @@ free   = setdiff( 1:3*V, idx );  % Get indices of non-boundary conditions
 v(idx) = 0;
 p(idx) = values;
 
-b      =  btmp(free)  - Atmp(free,idx)*v(idx);
+if isempty(idx)
+    b = btmp;
+else
+    b      =  btmp(free)  - Atmp(free,idx)*v(idx);
+end
 A      =  sparse( Atmp(free,free) );
 
 %--- Do velocity update ---------------------------------------------------
