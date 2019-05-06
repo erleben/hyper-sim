@@ -1,15 +1,18 @@
 function [profile_data] = simulate( params, method, scene, profile_info )
 
 %--- Profiling data members -----------------------------------------------
-H  = [];   % Time step sizes
-W  = [];   % Wall clock times of time steps
-V  = [];   % Volume monitoring
-KE = [];   % Kinetic energy monitoring
-P  = [];   % Test point monitoring
-C  = {};   % Convergence rate monitoring
-MAX_X = [];
-MEDIAN_XYZ = [];
-CABLE_POINTS = [];
+H  = [];           % Time step sizes
+W  = [];           % Wall clock times of time steps
+V  = [];           % Volume monitoring
+KE = [];           % Kinetic energy monitoring
+P  = [];           % Test point monitoring
+C  = {};           % Convergence rate monitoring
+MAX_X = [];        % Max x-position of mesh nodes
+MIN_Z = [];        % Min z-position of mesh nodes
+MEDIAN_XYZ = [];   % [x,y,z]-positions of mesh node closest to middle
+CABLE_POINTS = []; % Cable positions [x,y,z]
+COM = [];          % Center of mass
+MEAN_POS = [];     % Mean position of mesh
 
 profile = profile_info.record_convergence_rate; % Flag passed to time steppers 
 conv    = [];                                   % Convergence rate array returned by time steppers (if used by them)
@@ -40,6 +43,14 @@ if profile_info.record_test_point
   end
 end
 
+%-- If this is a pressure force simulation, add pressure parameters to
+%-- state
+if isfield(scene, 'pressure')
+    state.pressure = scene.pressure;
+    state.F = scene.F;
+end
+
+
 %-- Gravitational Computations
 
 f_gravity = method.compute_gravity(T, X, Y, Z, params.rho);
@@ -69,10 +80,17 @@ while T > 0
     if params.gravity
        state              = method.add_gravity(f_gravity, state); 
     end
+    % Adding cable forces if part of simulation
     if isfield(scene, 'cable')
         cable_force_info  = scene.create_cable_forces( cur_time, state, mesh );
-        CABLE_POINTS = [CABLE_POINTS; cable_force_info.cable_positions];
         state             = method.add_cable_forces( state, cable_force_info );
+        CABLE_POINTS = [CABLE_POINTS; cable_force_info.cable_positions]; % For plotting
+    end
+    % Adding pressure forces if part of simulation
+    if isfield(scene, 'pressure')
+       pressure_force_info = scene.create_pressure_forces( cur_time, state, mesh );
+       state             = method.add_pressure_forces( state, pressure_force_info);
+
     end
     
     BC                = scene.create_boundary_conditions( cur_time, state, mesh );
@@ -171,8 +189,35 @@ while T > 0
   
   % Save maximum X point
   MAX_X = [MAX_X; max(state.x(:))];
+  MIN_Z = [MIN_Z; min(state.z(:))];
   % Save median coordinates
   MEDIAN_XYZ = [ MEDIAN_XYZ; state.x(median_index), state.y(median_index), state.z(median_index)];
+  % Compute and save COM and Mean Position of mesh
+  total_volume = 0;
+  com = [0,0,0];
+  mean_pos = [0,0,0];
+  for t=1:length(T(:, 1))
+   i = T(t, 1);
+   j = T(t, 2);
+   k = T(t, 3);
+   m = T(t, 4);
+   
+   Pi = [X(i); Y(i); Z(i)];
+   Pj = [X(j); Y(j); Z(j)];
+   Pk = [X(k); Y(k); Z(k)];
+   Pm = [X(m); Y(m); Z(m)];
+   
+   a = Pi - Pj;
+   b = Pk - Pj;
+   c = Pm - Pj;
+   
+   vol = 1/6. * dot(a, cross(c, b));
+   total_volume = total_volume + vol;
+   mean_pos = mean_pos + mean([Pi'; Pj'; Pk'; Pm']);
+   com  = com + mean([Pi'; Pj'; Pk'; Pm']) .* vol; 
+  end
+  COM = [COM; com / total_volume];
+  MEAN_POS = [MEAN_POS; mean_pos / length(T(:, 1))];
   if profile_info.draw_images
     
     %--- Visualize the computed frame ---------------------------------------
@@ -254,8 +299,11 @@ profile_data = struct(...
   'P',P,...
   'C',{C},...
   'MAX_X', MAX_X,...
+  'MIN_Z', MIN_Z, ...
   'MEDIAN_XYZ', MEDIAN_XYZ, ...
-  'CABLE_POINTS', CABLE_POINTS ...
+  'CABLE_POINTS', CABLE_POINTS, ...
+  'COM', COM, ...
+  'MEAN_POS', MEAN_POS ...
   );
 
 end
