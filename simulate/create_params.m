@@ -43,8 +43,8 @@ switch lower(material)
     nu  = 0.18;
     rho = 2190;
   case 'ecoflex-00-50'
-    %E = 0.082737e6; % From EcoFlex 00-50 product info (12 PSI)
-    E = 0.008e9;
+    %E = 0.008e9;
+    E = 0.2642e9; % From http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.633.1168&rep=rep1&type=pdf;
     %E = 1e4;
     nu = 0.48;      % From https://www.azom.com/properties.aspx?ArticleID=920 (Silicone Polystomer)
     rho = 1070;     % From EcoFlex 00-50 product info (1.07 g / cc)
