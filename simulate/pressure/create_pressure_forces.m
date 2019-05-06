@@ -18,6 +18,10 @@ function [ pressure_info ] = create_pressure_forces( time, state, mesh )
 %--- Get triangle and pressure info ---------------------------------------
 F    = state.F;
 if isempty(F)
+  pressure_info = struct(...
+      'Fp', [], ...
+      'F', [] ...
+  );
   return
 end
 
@@ -27,9 +31,13 @@ z    = state.z;
 
 %--- Get current pressure -------------------------------------------------
 pressure_struct = state.pressure;
-time_to_infalte = pressure_struct.inflation;
-beta = max(pressure_struct.beta, time_to_inflate - time*0.1); %-- Adjusting beta always takes time_to_inflate seconds
-pressure = beta * pressure_struct.pressure;
+time_to_inflate = pressure_struct.inflation;
+if time_to_inflate == 0
+   beta = pressure_struct.beta; 
+else 
+   beta = pressure_struct.beta * min(time / time_to_inflate, 1);
+end
+pressure = beta * pressure_struct.pressure ; % Take atmospheric pressure from outside into account when choosing pressure
 
 %--- Get triangle indices -------------------------------------------------
 i = F(:,1);
@@ -47,7 +55,7 @@ A    =  sum( Avec.*Avec, 1).^(0.5);
 
 % Compute pressure forces for each face 
 Fp = zeros(length(F(:, 1)), 3);
-for f=1:length(F(:,1))
+parfor f=1:length(F(:,1))
   % Normal of face f
   i = F(f, 1);
   j = F(f, 2);
@@ -66,7 +74,6 @@ for f=1:length(F(:,1))
   % F = nP / A
   Fp(f,:) = n .* pressure /  A(f);
 end
-
 %--- Bundle all info into one structure ----------------------------------
 pressure_info = struct(...
   'Fp', Fp, ...

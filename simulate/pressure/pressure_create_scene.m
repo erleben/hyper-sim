@@ -1,4 +1,4 @@
-function [ scene ] = pressure_create_scene(mesh_no, absolute_path, robot_name, initial_pressure, beta, inflation)
+function [ scene ] = pressure_create_scene(mesh_no, absolute_path, volumetric_mesh, initial_pressure, beta, inflation)
 
 if nargin<1 || isempty(mesh_no)
   mesh_no = 1;
@@ -9,13 +9,8 @@ if nargin<2 || isempty(absolute_path)
   absolute_path = '../';
 end
 
-
-if nargin<5
-    meshfile = '/meshing/robot.mat';
-else
-    meshfile = strcat('/meshing/', robot_name);
-end
-meshfile = strcat(absolute_path, meshfile);
+volumetricmeshfile = strcat('/meshing/', volumetric_mesh);
+volumetricmeshfile  = strcat(absolute_path, volumetricmeshfile);
 
 
 cbc = @pressure_create_boundary_conditions;
@@ -30,11 +25,12 @@ pressure = struct(...
 
 
 scene = struct(...
-  'meshfile', meshfile,...
+  'meshfile', volumetricmeshfile,...
   'create_surface_traction_info', cls,...
   'create_boundary_conditions', cbc,...
   'create_pressure_forces', cpf, ...
-  'pressure', pressure ...
+  'pressure', pressure, ...
+  'F', 0 ...
   );
 
 end

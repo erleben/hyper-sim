@@ -8,6 +8,10 @@ KE = [];           % Kinetic energy monitoring
 P  = [];           % Test point monitoring
 C  = {};           % Convergence rate monitoring
 MAX_X = [];        % Max x-position of mesh nodes
+MAX_Y = [];        % Max y-position of mesh nodes
+MAX_Z = [];        % Max z-position of mesh nodes
+MIN_X = [];        % Min x-position of mesh nodes
+MIN_Y = [];        % Min y-position of mesh nodes
 MIN_Z = [];        % Min z-position of mesh nodes
 MEDIAN_XYZ = [];   % [x,y,z]-positions of mesh node closest to middle
 CABLE_POINTS = []; % Cable positions [x,y,z]
@@ -15,6 +19,7 @@ COM = [];          % Center of mass
 MEAN_POS = [];     % Mean position of mesh
 
 profile = profile_info.record_convergence_rate; % Flag passed to time steppers 
+profile_info.record_test_point = false;
 conv    = [];                                   % Convergence rate array returned by time steppers (if used by them)
 
 %--- Load mesh data -------------------------------------------------------
@@ -88,7 +93,8 @@ while T > 0
     end
     % Adding pressure forces if part of simulation
     if isfield(scene, 'pressure')
-       pressure_force_info = scene.create_pressure_forces( cur_time, state, mesh );
+        pressure_force_info = scene.create_pressure_forces( cur_time, state, mesh );
+       
        state             = method.add_pressure_forces( state, pressure_force_info);
 
     end
@@ -187,8 +193,12 @@ while T > 0
   
   T = T - dt;
   
-  % Save maximum X point
+  % Save maximums and minimumss
   MAX_X = [MAX_X; max(state.x(:))];
+  MAX_Y = [MAX_Y; max(state.y(:))];
+  MAX_Z = [MAX_Z; max(state.z(:))];
+  MIN_X = [MIN_X; min(state.x(:))];
+  MIN_Y = [MIN_Y; min(state.y(:))];
   MIN_Z = [MIN_Z; min(state.z(:))];
   % Save median coordinates
   MEDIAN_XYZ = [ MEDIAN_XYZ; state.x(median_index), state.y(median_index), state.z(median_index)];
@@ -196,16 +206,16 @@ while T > 0
   total_volume = 0;
   com = [0,0,0];
   mean_pos = [0,0,0];
-  for t=1:length(T(:, 1))
-   i = T(t, 1);
-   j = T(t, 2);
-   k = T(t, 3);
-   m = T(t, 4);
+  for t=1:length(mesh.T(:, 1))
+   i = mesh.T(t, 1);
+   j = mesh.T(t, 2);
+   k = mesh.T(t, 3);
+   m = mesh.T(t, 4);
    
-   Pi = [X(i); Y(i); Z(i)];
-   Pj = [X(j); Y(j); Z(j)];
-   Pk = [X(k); Y(k); Z(k)];
-   Pm = [X(m); Y(m); Z(m)];
+   Pi = [state.x(i); state.y(i); state.z(i)];
+   Pj = [state.x(j); state.y(j); state.z(j)];
+   Pk = [state.x(k); state.y(k); state.z(k)];
+   Pm = [state.x(m); state.y(m); state.z(m)];
    
    a = Pi - Pj;
    b = Pk - Pj;
@@ -233,9 +243,9 @@ while T > 0
     %view(0, 0)
     view(3)
     title( ['T = '  num2str( params.T - T ) ' [s]'] );
-    xlabel('x [m]');
-    ylabel('y [m]');
-    zlabel('z [m]');
+    xlabel('x [mm]');
+    ylabel('y [mm]');
+    zlabel('z [mm]');
     hold off;
     if profile_info.save_images
       if(frame<=max_frames)
@@ -248,33 +258,51 @@ while T > 0
       end
     end
     %%%% View 2 %%%%
-    fh = figure('Visible','off');  % Should be used if run in commandline mode
-    %fh = figure(100);
-    clf;
-    hold on
-    meshplot(mesh, state, BC, profile_info.debug_level);
-    axis([-100 100 -100 100 -100 100])
-    max_y = max(state.y);
-    barycentricCoordinates = state.cable.W;
-    indices = state.cable.indices;
-    vertexPositions = [state.x(indices, :), state.y(indices, :), state.z(indices, :)];     %-- Positions of all vertices
-    cablePositions = barycentricCoordinates * vertexPositions;                             %-- Re-interpolated points of the cable
-    [xs,ys,zs] = sphere;
-    % Place spheres representing cable nodes
-    for c = 1:length(cablePositions(:, 1))
-       %surf(xs+cablePositions(c, 1), ys+cablePositions(c,2), zs+cablePositions(c,3));
-       surf(xs+cablePositions(c, 1), ys-max_y, zs+cablePositions(c,3));
+    if isfield(scene, 'cable')
+       fh = figure('Visible','off');  % Should be used if run in commandline mode
+        %fh = figure(100);
+        clf;
+        hold on
+        meshplot(mesh, state, BC, profile_info.debug_level);
+        axis([-100 100 -100 100 -100 100])
+        max_y = max(state.y);
+        barycentricCoordinates = state.cable.W;
+        indices = state.cable.indices;
+        vertexPositions = [state.x(indices, :), state.y(indices, :), state.z(indices, :)];     %-- Positions of all vertices
+        cablePositions = barycentricCoordinates * vertexPositions;                             %-- Re-interpolated points of the cable
+        [xs,ys,zs] = sphere;
+        % Place spheres representing cable nodes
+        for c = 1:length(cablePositions(:, 1))
+           %surf(xs+cablePositions(c, 1), ys+cablePositions(c,2), zs+cablePositions(c,3));
+           surf(xs+cablePositions(c, 1), ys-max_y, zs+cablePositions(c,3));
+        end
+        % Plot lines between cable points
+        plot3(cablePositions(:, 1), -ones(length(cablePositions(:, 1)), 1)*max_y, cablePositions(:, 3), 'LineWidth', 3, 'Color', 'Yellow')
+        grid on
+        view(0, 0)
+        %view(3)
+        title( ['T = '  num2str( params.T - T ) ' [s]'] );
+        xlabel('x [mm]');
+        ylabel('y [mm]');
+        zlabel('z [mm]');
+        hold off;
+    else
+        fh = figure('Visible','off');  % Should be used if run in commandline mode
+        %fh = figure(100);
+        clf;
+        hold on
+        meshplot(mesh, state, BC, profile_info.debug_level);
+        axis([-100 100 -5 5 -100 100])
+        grid on
+        view(0, 0)
+        %view(3)
+        title( ['T = '  num2str( params.T - T ) ' [s]'] );
+        xlabel('x [mm]');
+        ylabel('y [mm]');
+        zlabel('z [mm]');
+        hold off;
     end
-    % Plot lines between cable points
-    plot3(cablePositions(:, 1), -ones(length(cablePositions(:, 1)), 1)*max_y, cablePositions(:, 3), 'LineWidth', 3, 'Color', 'Yellow')
-    grid on
-    view(0, 0)
-    %view(3)
-    title( ['T = '  num2str( params.T - T ) ' [s]'] );
-    xlabel('x [m]');
-    ylabel('y [m]');
-    zlabel('z [m]');
-    hold off;
+    
     if profile_info.save_images
       if(frame<=max_frames)
         filename = strcat(  profile_info.output_path,  profile_info.filename_prefix, num2str( frame, '%.5u'), 'view2'  );
@@ -299,6 +327,10 @@ profile_data = struct(...
   'P',P,...
   'C',{C},...
   'MAX_X', MAX_X,...
+  'MAX_Y', MAX_Y,...
+  'MAX_Z', MAX_Z,...
+  'MIN_X', MIN_X, ...
+  'MIN_Y', MIN_Y, ...
   'MIN_Z', MIN_Z, ...
   'MEDIAN_XYZ', MEDIAN_XYZ, ...
   'CABLE_POINTS', CABLE_POINTS, ...

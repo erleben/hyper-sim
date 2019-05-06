@@ -14,7 +14,9 @@ addpath('./bend2');
 addpath('./bend3');
 addpath('./squeeze');
 addpath('./stretch');
-addpath('./pull');
+%addpath('./pull');
+addpath('./exp_pull_gravity');
+addpath('./exp_pull_alpha_0.95');
 
 method = fem_method();
 % method = cor_method();
@@ -32,10 +34,10 @@ method = fem_method();
 cable = [...
      -59, 0.0, 0.0;...
      59, 0.0, 0.0];
-scene  = pull_create_scene(1, '../', cable);
+scene  = pull_gravity_create_scene(1, '../', cable);
 
 %params = create_params();
-params = create_params('ecoflex-00-50','adaptive'); 
+params = create_params('ecoflex-00-50','adaptive', 0.5); 
 %--- COR method is based on Hookean material but FVM and FEM uses 
 %--- a St. Venant-Kirchoff material. This gives COR a more stiff behavior/
 %--- appearance. Thus, for animation one would most like use unrealistic
