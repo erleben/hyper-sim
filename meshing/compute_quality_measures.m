@@ -53,11 +53,12 @@ for e=1:K
   Skm = Lkm/(Ai*Aj);
   S_min = min( [Sij, Sik, Sim, Sjk, Sjm, Skm] );
   
-  Qvl(e)    = 12 * (3*V)^(2/3) / L2;    % Barry Joe style
-  %Qvl(e)    = 6*sqrt(2)*V/(Lrms^3);    % Klinger/Shewchuck version
-  Qrl(e)    = 2 * sqrt(6) * Rin(e) / L_max;
-  Qrr(e)    = 3*Rin(e)/Rout(e);
-  Qtheta(e) = (9 * sqrt(2)/8) * V * S_min;
+  % See Table 7 in https://people.eecs.berkeley.edu/~jrs/papers/elemj.pdf
+  Qvl(e)    = 12 * (3*V)^(2/3) / L2;    % Barry Joe style, volume edge ratio used in http://image.diku.dk/kenny/download/misztal.erleben.ea13.pdf 
+  %Qvl(e)    = 6*sqrt(2)*V/(Lrms^3);    % Suggested by Parthasarathy, Graichen, and Hathaway
+  Qrl(e)    = 2 * sqrt(6) * Rin(e) / L_max;  % The measure associated with interpolation error in the usual (weaker) bounds given by approximation theory. Suggested for mesh generation by Baker.
+  Qrr(e)    = 3*Rin(e)/Rout(e);              % The radius ratio. Suggested by Cavendish, Field, and Frey
+  Qtheta(e) = (9 * sqrt(2)/8) * V * S_min;   % With i, j, k, and l distinct. Studied by Freitag and Ollivier-Gooch
   
 end
 

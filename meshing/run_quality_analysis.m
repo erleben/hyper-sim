@@ -22,8 +22,9 @@ for m=1:length(meshes)
   clf;
   set(gca,'FontSize',18);
   hist(Qrr, 40);
-  ylabel('value','FontSize',18);
-  xlabel('Q_{rr}','FontSize',18);
+  ylabel('#Elements','FontSize',18);
+  xlabel('$Q_{rr} = 3 \frac{R_{in}}{R_{out}}$','FontSize',18,'interpreter','latex');
+  grid on
   filename = strcat( 'Qrr_m', num2str(m));
   print(fh, '-depsc2', filename);
   
@@ -31,8 +32,9 @@ for m=1:length(meshes)
   clf;
   set(gca,'FontSize',18);
   hist(Qrl, 40);
-  ylabel('value','FontSize',18);
-  xlabel('Q_{rl}','FontSize',18);
+  ylabel('#Elements','FontSize',18);
+  xlabel('$Q_{rl} = 2  \sqrt{6}  \frac{R_{in}}{L_{max}}$','FontSize',18,'interpreter','latex');
+  grid on
   filename = strcat( 'Qrl_m', num2str(m));
   print(fh, '-depsc2', filename);
   
@@ -40,8 +42,9 @@ for m=1:length(meshes)
   clf;
   set(gca,'FontSize',18);
   hist(Qtheta, 40);
-  ylabel('value','FontSize',18);
-  xlabel('Q_{\theta}','FontSize',18);
+  ylabel('#Elements','FontSize',18);
+  xlabel('$Q_{\theta} = \frac{9 \sqrt{2}}{8}  V  S_{min}$','FontSize',18,'interpreter','latex');
+  grid on
   filename = strcat( 'Qtheta_m', num2str(m));
   print(fh, '-depsc2', filename);
   
@@ -49,8 +52,9 @@ for m=1:length(meshes)
   clf;
   set(gca,'FontSize',18);
   hist(Qvl, 40);
-  ylabel('value','FontSize',18);
-  xlabel('Q_{vl}','FontSize',18);
+  ylabel('#Elements','FontSize',18);
+  xlabel('$Q_{vl} = 12  \frac{{\left(3V\right)}^{\frac{2}{3}}}{L_2}$','FontSize',18,'interpreter','latex');
+  grid on
   filename = strcat( 'Qvl_m', num2str(m));
   print(fh, '-depsc2', filename);
   
